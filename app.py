@@ -7,6 +7,7 @@ from schemas import UserResponse
 from starlette.middleware.sessions import SessionMiddleware
 import uuid
 import redis
+from urllib.parse import urlparse
 import json
 import os
 
@@ -17,7 +18,17 @@ templates = Jinja2Templates(directory="templates")
 
 # Initialize connection to redis
 app.add_middleware(SessionMiddleware, secret_key=os.getenv('SESSION_KEY'))
-pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+REDIS_URL = os.getenv("RAILWAY_REDIS_URL")
+
+url = urlparse(REDIS_URL)
+
+pool = redis.ConnectionPool(
+    host=url.hostname,
+    port=url.port,
+    password=url.password,
+    db=0,
+)
+
 r = redis.Redis(connection_pool=pool)
 
 openai.api_key = os.getenv('OPENAI_API_KEY')
