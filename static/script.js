@@ -47,6 +47,11 @@ document.addEventListener("DOMContentLoaded", function() {
         chatLog.innerHTML = ''
         const file = fileInput.files[0];
 
+        if (file.type !== 'text/plain') {
+            printMessage('Invalid file type. Please select a .txt file.');
+            return;
+        }
+
         const fileSizeInMegabytes = file.size / (1024*1024); 
 
         if (fileSizeInMegabytes > 1) { 
