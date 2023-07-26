@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function() {
         chatLog.innerHTML = ''
         const file = fileInput.files[0];
 
-        if (file.type !== 'text/plain') {
+        if (file.type !== 'text/plain' && file.type !== 'text/markdown') {
             printMessage('Invalid file type. Please select a .txt file.');
             return;
         }
