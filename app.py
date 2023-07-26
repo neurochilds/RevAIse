@@ -19,9 +19,9 @@ templates = Jinja2Templates(directory="templates")
 # Initialize connection to redis
 app.add_middleware(SessionMiddleware, secret_key=os.getenv('SESSION_KEY'))
 REDIS_URL = os.getenv("RAILWAY_REDIS_URL")
-
+if REDIS_URL is None:
+    raise ValueError("REDIS_URL is not set")
 url = urlparse(REDIS_URL)
-
 pool = redis.ConnectionPool(
     host=url.hostname,
     port=url.port,
