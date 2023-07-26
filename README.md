@@ -1,0 +1,2 @@
+# Revision Bot
+Upload a .txt file containing notes on any topic and Revision Bot will ask you questions to probe your understanding. Revision Bot utilises the ChatGPT API and therefore has access to all of ChatGPT's knowledge. If anything is unclear, simply ask Revision Bot for a more detailed explanation.
