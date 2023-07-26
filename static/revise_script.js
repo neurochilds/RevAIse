@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     const nextButton = document.getElementById('next-chunk');
     const submitButton = document.getElementById('submit-response');
-    const uploadButton = document.getElementById('upload-file');
-    const fileInput = document.getElementById('file-input');
     const downloadButton = document.getElementById('download-log');
     const userInput = document.getElementById('user-input');
     const chatLog = document.getElementById('log');
@@ -13,16 +11,10 @@ document.addEventListener("DOMContentLoaded", function() {
     submitButton.disabled = true;
     nextButton.disabled = true;
     userInput.disabled = true;
-    uploadButton.disabled = true;
 
-    fileInput.addEventListener("change", function() {
-
-        if (fileInput.files.length > 0) {
-            uploadButton.disabled = false;
-        } else {
-            uploadButton.disabled = true;
-        }
-    })
+    // print response stored from index.html before revise.html was loaded
+    const storedResponse = localStorage.getItem('response');
+    printMessage(storedResponse);
 
     userInput.addEventListener("keyup", function() {
         if (userInput.value && !typing) {
@@ -42,34 +34,7 @@ document.addEventListener("DOMContentLoaded", function() {
         a.click();
     }
 
-    async function uploadFile() {
-        uploadButton.disabled = true;
-        chatLog.innerHTML = ''
-        const file = fileInput.files[0];
-
-        const fileSizeInMegabytes = file.size / (1024*1024); 
-
-        if (fileSizeInMegabytes > 1) { 
-            printMessage('File is too large. Please select a file that is less than 1 MB.');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
-
-        const result = await response.json();
-
-        printMessage(result.response)
-    }
-
     async function printMessage(message) {
-        window.scrollTo(0, document.body.scrollHeight);
         downloadButton.disabled = true;
         nextButton.disabled = true;
         typing = true;
@@ -87,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (char == '<') {
                 messagePara.innerHTML += '<br>'
             } else if (char == '[') {
-                messagePara.innerHTML += '<b>RevAIse Bot:</b>'
+                messagePara.innerHTML += '<b>Revision Bot:</b>'
             } else {
                 messagePara.innerHTML += char;
             }
@@ -152,7 +117,6 @@ document.addEventListener("DOMContentLoaded", function() {
     };
 
     submitButton.addEventListener("click", sendResponse);
-    document.getElementById('upload-file').addEventListener("click", uploadFile);
     nextButton.addEventListener("click", nextChunk);
     downloadButton.addEventListener("click", downloadLog);
 });

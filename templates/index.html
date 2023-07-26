@@ -4,21 +4,15 @@
 {% endblock %}
 {% block main %}
 <div class="container">
-    <h2>Upload File</h2>
-    <div class="input">
-        <input type="file" id="file-input">
-        <button type="submit" id="upload-file">Upload</button>
+    <h2>Welcome</h2>
+    <div id="welcome">
+        <p>
+            Rev<span style="color: #a6a6a6;">AI</span>se Bot is an AI revision bot powered by ChatGPT. Simply upload a .txt file of your notes on any topic and you will be given questions to test your understanding. Rev<span style="color: #a6a6a6;">AI</span>se Bot has access to all of ChatGPT's knowledge. If you require more detailed explanations or want to modify the revision style, just ask.
+        </p>
+        <div class="button-container">
+            <a href="/revise"><button id="revaise" onclick="">Rev<span style="color: #a6a6a6;">AI</span>se</button></a>
+        </div>
     </div>
 </div>
-<div class="container">
-    <h2>Chat Log</h2>
-    <div id="log">
-    </div>
-    <div>
-        <input type="text" id="user-input" placeholder="Type your response here">
-        <button type="submit" id="submit-response">Submit Response</button>
-        <button id="next-chunk">Next Chunk</button>
-        <button id="download-log">Download Log</button>
-    </div>
-</div>
+
 {% endblock%}

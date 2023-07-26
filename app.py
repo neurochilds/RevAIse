@@ -125,7 +125,7 @@ async def chunkify_text(text_file: str, session_id: str):
         session_data['chunks'].append(new_chunk)
 
     message_to_user = f"One chunk is ~{CHUNK} characters. Total chunks in text: {len(session_data['chunks'])}.<"
-    message_to_user += "<Revision Bot will quiz you on the text one chunk at a time to prevent having to store too much data in memory.<<"
+    message_to_user += "<RevAIse Bot will quiz you on the text one chunk at a time to prevent having to store too much data in memory.<<"
 
     r.set(session_id, json.dumps(session_data))
     r.expire(session_id, 86400)
@@ -211,7 +211,7 @@ async def get_next_response(user_response: str, session_id: str):
         )
 
     except openai.error.InvalidRequestError:
-        message = 'Maximum length hit, Revision Bot cannot process anymore data in this chunk.<'
+        message = 'Maximum length hit, RevAIse Bot cannot process anymore data in this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
              message += '<You have no more chunks left. This revision session is over.'
@@ -234,3 +234,8 @@ async def get_next_response(user_response: str, session_id: str):
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse('index.html', {"request": request})
+
+
+@app.get("/revise", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse('revise.html', {"request": request})
