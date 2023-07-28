@@ -36,6 +36,31 @@ body {
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
+.input-section {
+    margin-bottom: 30px;
+    padding: 10px;
+    border: 1px solid #505050;
+    border-radius: 10px;
+}
+
+.input-section h3 {
+    color: #f0f0f0;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    text-shadow: 1px 1px 2px #000000;
+}
+
+textarea {
+    width: 100%;
+    background-color: #404040;
+    border: none;
+    border-radius: 5px;
+    color: #f0f0f0;
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.3);
+    font-size: 0.9em;
+    margin-bottom: 10px;
+}
+
 .button-container {
     display: flex;
     justify-content: center;
