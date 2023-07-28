@@ -5,6 +5,8 @@ from fastapi.templating import Jinja2Templates
 import openai
 from schemas import UserResponse
 from starlette.middleware.sessions import SessionMiddleware
+from docx import Document
+import io
 import uuid
 import redis
 from urllib.parse import urlparse
@@ -58,7 +60,7 @@ async def reset_session_data(session_id: str):
     session_data['notes'] = ''
     session_data['messages'] = DEFAULT_MESSAGE
     r.set(session_id, json.dumps(session_data))
-    r.expire(session_id, 86400)
+    r.expire(session_id, 43200)
     return
 
 
@@ -67,8 +69,21 @@ async def upload(file: UploadFile = File(...)):
     session_id = str(uuid.uuid4())
     await reset_session_data(session_id)
 
-    contents = await file.read()  # This will read the file content as bytes
-    notes = contents.decode()  # Decode the bytes to string if it's a text file
+    # Read the file content as bytes
+    contents = await file.read()  
+
+    if file.content_type not in ['text/plain', 'text/markdown', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']:
+        message = "Invalid file type. Please select a .txt, .md or .docx file."
+        return {"response": message}
+
+    # If .docx Word file, read in text paragraph by paragraph
+    if file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        doc = Document(io.BytesIO(contents))
+        notes = '\n'.join([p.text for p in doc.paragraphs])
+
+    # Else, decode the bytes to string if it's a text file
+    else:
+        notes = contents.decode('utf-8', errors='ignore')  
 
     if notes:
         message = await chunkify_text(notes, session_id)
@@ -107,7 +122,7 @@ async def next(request: Request):
     else:
         session_data['current_chunk'] += 1
         r.set(session_id, json.dumps(session_data))
-        r.expire(session_id, 86400)
+        r.expire(session_id, 43200)
         message = await start_next_chunk(session_id)
     
     return {'response': message}
@@ -139,7 +154,7 @@ async def chunkify_text(text_file: str, session_id: str):
     message_to_user += "<RevAIse Bot will quiz you on the text one chunk at a time to prevent having to store too much data in memory.<<"
 
     r.set(session_id, json.dumps(session_data))
-    r.expire(session_id, 86400)
+    r.expire(session_id, 43200)
 
     return message_to_user
 
@@ -196,7 +211,7 @@ async def start_next_chunk(session_id: str):
     session_data['messages'].append({"role": "assistant", "content": assistant_message})
 
     r.set(session_id, json.dumps(session_data))
-    r.expire(session_id, 86400)
+    r.expire(session_id, 43200)
     return message_to_user + '<[ ' + assistant_message
 
 
@@ -230,7 +245,7 @@ async def get_next_response(user_response: str, session_id: str):
         else:
             session_data["current_chunk"] += 1
             r.set(session_id, json.dumps(session_data))
-            r.expire(session_id, 86400)
+            r.expire(session_id, 43200)
             return await start_next_chunk(session_id)
 
 
@@ -238,7 +253,7 @@ async def get_next_response(user_response: str, session_id: str):
     session_data['messages'].append({"role": "assistant", "content": assistant_message})
 
     r.set(session_id, json.dumps(session_data))
-    r.expire(session_id, 86400)
+    r.expire(session_id, 43200)
     return  '[ ' + assistant_message
 
 

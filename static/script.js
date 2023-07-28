@@ -15,8 +15,32 @@ document.addEventListener("DOMContentLoaded", function() {
     userInput.disabled = true;
     uploadButton.disabled = true;
 
-    fileInput.addEventListener("change", function() {
+    async function submitNotes() {
+        const notes = document.getElementById('note-input').value;
 
+        if (!notes.trim()) {
+            printMessage('Please paste your notes before submitting.');
+            return;
+        }
+
+        // Create a Blob object from the textarea input with a MIME type of plain text
+        // Append the Blob as a file named 'notes.txt' to the FormData object under the key 'file'
+        // Allows the pasted/typed notes to be sent to same /upload API endpoint and be handled same way as uploaded .txt or .md files
+        const file = new Blob([notes], { type: 'text/plain' });
+        const formData = new FormData();
+        formData.append('file', file, 'notes.txt');
+
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        });
+
+        const result = await response.json();
+        printMessage(result.response)
+    }
+
+    fileInput.addEventListener("change", function() {
         if (fileInput.files.length > 0) {
             uploadButton.disabled = false;
         } else {
@@ -24,40 +48,23 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     })
 
-    userInput.addEventListener("keyup", function() {
-        if (userInput.value && !typing) {
-            submitButton.disabled = false;
-        } else {
-            submitButton.disabled = true;
-        }
-    });
-
-    function downloadLog() {
-        const log = chatLog.innerText;
-        const blob = new Blob([log], {type: 'text/plain'});
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'chatlog.txt';
-        a.click();
-    }
-
     async function uploadFile() {
         uploadButton.disabled = true;
         chatLog.innerHTML = ''
         const file = fileInput.files[0];
 
         const fileExtension = file.name.split('.').pop();
+        const extensions = ['txt', 'md', 'docx']
 
-        if (file.type !== 'text/plain' && fileExtension !== 'md') {
-            printMessage('Invalid file type. Please select a .txt or .md file.');
+        if (!extensions.includes(fileExtension)) {
+            printMessage('Invalid file type. Please select a .txt, .md, or .docx file.');
             return;
         }
 
         const fileSizeInMegabytes = file.size / (1024*1024); 
 
-        if (fileSizeInMegabytes > 1) { 
-            printMessage('File is too large. Please select a file that is less than 1 MB.');
+        if (fileSizeInMegabytes > 5) { 
+            printMessage('File is too large. Please select a file that is less than 5 MB.');
             return;
         }
 
@@ -71,7 +78,6 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         const result = await response.json();
-
         printMessage(result.response)
     }
 
@@ -82,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
         typing = true;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'assistant-div';  // This will be either 'user' or 'assistant'
+        messageDiv.className = 'assistant-div';  
 
         const messagePara = document.createElement('p');
         messagePara.className = 'assistant-message';
@@ -112,6 +118,23 @@ document.addEventListener("DOMContentLoaded", function() {
         return new Promise(resolve => setTimeout(resolve, ms))
     }
 
+
+    userInput.addEventListener("keyup", function() {
+        if (userInput.value && !typing) {
+            submitButton.disabled = false;
+        } else {
+            submitButton.disabled = true;
+        }
+    });
+
+
+    userInput.addEventListener("keydown", function(event) {
+        if (event.key === 'Enter') {
+            sendResponse();
+        }
+    });
+
+
     async function sendResponse() {
         const reply = userInput.value;
         userInput.value = '';
@@ -119,9 +142,8 @@ document.addEventListener("DOMContentLoaded", function() {
         userInput.disabled = true;
 
         const messageDiv = document.createElement('div');
-        messageDiv.className = 'user-div';  // This will be either 'user' or 'assistant'
+        messageDiv.className = 'user-div'; 
     
-        
         const messagePara = document.createElement('p');
         messagePara.className = 'user-message'
 
@@ -158,6 +180,17 @@ document.addEventListener("DOMContentLoaded", function() {
         await printMessage(result.response);
     };
 
+    function downloadLog() {
+        const log = chatLog.innerText;
+        const blob = new Blob([log], {type: 'text/plain'});
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chatlog.txt';
+        a.click();
+    }
+
+    document.getElementById('submit-notes').addEventListener("click", submitNotes);
     submitButton.addEventListener("click", sendResponse);
     document.getElementById('upload-file').addEventListener("click", uploadFile);
     nextButton.addEventListener("click", nextChunk);

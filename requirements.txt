@@ -7,3 +7,4 @@ redis
 python-multipart
 pydantic
 itsdangerous
+python-docx
