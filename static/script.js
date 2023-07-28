@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
     const nextButton = document.getElementById('next-chunk');
-    const submitButton = document.getElementById('submit-response');
+    const submitResponseButton = document.getElementById('submit-response');
+    const submitNotesButton = document.getElementById('submit-notes');
+    const pastedNotes = document.getElementById('notes-input');
     const uploadButton = document.getElementById('upload-file');
     const fileInput = document.getElementById('file-input');
     const downloadButton = document.getElementById('download-log');
@@ -10,23 +12,32 @@ document.addEventListener("DOMContentLoaded", function() {
     var typing = false;
 
     downloadButton.disabled = true;
-    submitButton.disabled = true;
+    submitResponseButton.disabled = true;
+    submitNotesButton.disabled = true;
     nextButton.disabled = true;
     userInput.disabled = true;
     uploadButton.disabled = true;
 
-    async function submitNotes() {
-        const notes = document.getElementById('note-input').value;
+    pastedNotes.addEventListener("keyup", function() {
+        if (pastedNotes.value) {
+            submitNotesButton.disbabled = false;
+        } else {
+            submitNotesButton.disbabled = true;
+        }
+    });
 
-        if (!notes.trim()) {
+    async function submitNotes() {
+        if (!pastedNotes.trim()) {
             printMessage('Please paste your notes before submitting.');
             return;
         }
 
+        submitNotesButton.disbabled = false;
+
         // Create a Blob object from the textarea input with a MIME type of plain text
         // Append the Blob as a file named 'notes.txt' to the FormData object under the key 'file'
         // Allows the pasted/typed notes to be sent to same /upload API endpoint and be handled same way as uploaded .txt or .md files
-        const file = new Blob([notes], { type: 'text/plain' });
+        const file = new Blob([pastedNotes], { type: 'text/plain' });
         const formData = new FormData();
         formData.append('file', file, 'notes.txt');
 
@@ -37,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
 
         const result = await response.json();
+        pastedNotes.value = '';
         printMessage(result.response)
     }
 
@@ -121,9 +133,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
     userInput.addEventListener("keyup", function() {
         if (userInput.value && !typing) {
-            submitButton.disabled = false;
+            submitResponseButton.disabled = false;
         } else {
-            submitButton.disabled = true;
+            submitResponseButton.disabled = true;
         }
     });
 
@@ -138,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function() {
     async function sendResponse() {
         const reply = userInput.value;
         userInput.value = '';
-        submitButton.disabled = true;
+        submitResponseButton.disabled = true;
         userInput.disabled = true;
 
         const messageDiv = document.createElement('div');
@@ -191,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     document.getElementById('submit-notes').addEventListener("click", submitNotes);
-    submitButton.addEventListener("click", sendResponse);
+    submitResponseButton.addEventListener("click", sendResponse);
     document.getElementById('upload-file').addEventListener("click", uploadFile);
     nextButton.addEventListener("click", nextChunk);
     downloadButton.addEventListener("click", downloadLog);
