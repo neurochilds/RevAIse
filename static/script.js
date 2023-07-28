@@ -20,14 +20,14 @@ document.addEventListener("DOMContentLoaded", function() {
 
     pastedNotes.addEventListener("keyup", function() {
         if (pastedNotes.value) {
-            submitNotesButton.disbabled = false;
+            submitNotesButton.disabled = false;
         } else {
-            submitNotesButton.disbabled = true;
+            submitNotesButton.disabled = true;
         }
     });
 
     async function submitNotes() {
-        if (!pastedNotes.trim()) {
+        if (!pastedNotes.value.trim()) {
             printMessage('Please paste your notes before submitting.');
             return;
         }
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
         // Create a Blob object from the textarea input with a MIME type of plain text
         // Append the Blob as a file named 'notes.txt' to the FormData object under the key 'file'
         // Allows the pasted/typed notes to be sent to same /upload API endpoint and be handled same way as uploaded .txt or .md files
-        const file = new Blob([pastedNotes], { type: 'text/plain' });
+        const file = new Blob([pastedNotes.value], { type: 'text/plain' });
         const formData = new FormData();
         formData.append('file', file, 'notes.txt');
 
