@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function() {
     userInput.disabled = true;
     uploadButton.disabled = true;
 
-    pastedNotes.addEventListener("keyup", function() {
+    pastedNotes.addEventListener("input", function() {
         if (pastedNotes.value) {
             submitNotesButton.disabled = false;
         } else {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        submitNotesButton.disbabled = false;
+        submitNotesButton.disabled = true;
 
         // Create a Blob object from the textarea input with a MIME type of plain text
         // Append the Blob as a file named 'notes.txt' to the FormData object under the key 'file'
