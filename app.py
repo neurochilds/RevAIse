@@ -4,7 +4,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import openai
 from openai import OpenAI
-
 from schemas import UserResponse
 from starlette.middleware.sessions import SessionMiddleware
 from docx import Document
@@ -209,7 +208,7 @@ async def start_next_chunk(session_id: str):
             return await start_next_chunk(session_id)
 
     message_to_user = f"*Starting chunk {session_data['current_chunk']+1} of {len(session_data['chunks'])}*<"
-    assistant_message = response['choices'][0]['message']['content']
+    assistant_message = response.choices[0].message.content
     session_data['messages'].append({"role": "assistant", "content": assistant_message})
 
     r.set(session_id, json.dumps(session_data))
@@ -249,7 +248,7 @@ async def get_next_response(user_response: str, session_id: str):
             return await start_next_chunk(session_id)
 
 
-    assistant_message = response['choices'][0]['message']['content']
+    assistant_message = response.choices[0].message.content
     session_data['messages'].append({"role": "assistant", "content": assistant_message})
 
     r.set(session_id, json.dumps(session_data))
