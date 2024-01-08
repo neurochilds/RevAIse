@@ -5,7 +5,6 @@ from fastapi.templating import Jinja2Templates
 import openai
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 from schemas import UserResponse
 from starlette.middleware.sessions import SessionMiddleware
 from docx import Document
@@ -15,6 +14,8 @@ import redis
 from urllib.parse import urlparse
 import json
 import os
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 # Initialize app and templates
 app = FastAPI()
