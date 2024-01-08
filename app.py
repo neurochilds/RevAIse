@@ -3,6 +3,9 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 from schemas import UserResponse
 from starlette.middleware.sessions import SessionMiddleware
 from docx import Document
@@ -33,7 +36,6 @@ pool = redis.ConnectionPool(
 
 r = redis.Redis(connection_pool=pool)
 
-openai.api_key = os.getenv('OPENAI_API_KEY')
 
 # The text will be broken up into chunks of 2000 characters.
 # ChatGPT will be sent one chunk at a time to provide questions on.
@@ -185,17 +187,15 @@ async def start_next_chunk(session_id: str):
 
     try:
         # Send initial message to ChatGPT with current chunk of users notes
-        response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=session_data['messages'],
-                temperature=0.5,
-                max_tokens=1024,
-                top_p=1,
-                frequency_penalty=0,
-                presence_penalty=0
-            )
+        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        messages=session_data['messages'],
+        temperature=0.5,
+        max_tokens=1024,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0)
             
-    except openai.error.InvalidRequestError:
+    except openai.InvalidRequestError:
         message = 'Sorry, I was unable to process this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
@@ -227,17 +227,15 @@ async def get_next_response(user_response: str, session_id: str):
     })
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=session_data['messages'],
-            temperature=0.5,
-            max_tokens=2048,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
+        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        messages=session_data['messages'],
+        temperature=0.5,
+        max_tokens=2048,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0)
 
-    except openai.error.InvalidRequestError:
+    except openai.InvalidRequestError:
         message = 'Maximum length hit, RevAIse Bot cannot process anymore data in this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
