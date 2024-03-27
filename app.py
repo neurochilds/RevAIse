@@ -187,7 +187,7 @@ async def start_next_chunk(session_id: str):
 
     try:
         # Send initial message to ChatGPT with current chunk of users notes
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        response = client.chat.completions.create(model="gpt-3.5-turbo-0125",
         messages=session_data['messages'],
         temperature=0.5,
         max_tokens=1024,
@@ -227,7 +227,7 @@ async def get_next_response(user_response: str, session_id: str):
     })
 
     try:
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        response = client.chat.completions.create(model="gpt-3.5-turbo-0125",
         messages=session_data['messages'],
         temperature=0.5,
         max_tokens=2048,
