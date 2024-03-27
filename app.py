@@ -195,7 +195,7 @@ async def start_next_chunk(session_id: str):
         frequency_penalty=0,
         presence_penalty=0)
             
-    except openai.error.InvalidRequestError:
+    except openai.InvalidRequestError:
         message = 'Sorry, I was unable to process this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
@@ -235,7 +235,7 @@ async def get_next_response(user_response: str, session_id: str):
         frequency_penalty=0,
         presence_penalty=0)
 
-    except openai.error.InvalidRequestError:
+    except openai.InvalidRequestError:
         message = 'Maximum length hit, RevAIse Bot cannot process anymore data in this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
