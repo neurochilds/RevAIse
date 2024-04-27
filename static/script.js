@@ -26,6 +26,39 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+
+    function extractText(pdfUrl) {
+        var pdf = pdfjsLib.getDocument(pdfUrl);
+        return pdf.promise.then(function (pdf) {
+            var totalPageCount = pdf.numPages;
+            var countPromises = [];
+            for (
+                var currentPage = 1;
+                currentPage <= totalPageCount;
+                currentPage++
+            ) {
+                var page = pdf.getPage(currentPage);
+                countPromises.push(
+                    page.then(function (page) {
+                        var textContent = page.getTextContent();
+                        return textContent.then(function (text) {
+                            return text.items
+                                .map(function (s) {
+                                    return s.str;
+                                })
+                                .join('');
+                        });
+                    }),
+                );
+            }
+
+            return Promise.all(countPromises).then(function (texts) {
+                return texts.join('');
+            });
+        });
+    };
+
     async function submitNotes() {
         if (!pastedNotes.value.trim()) {
             printMessage('Please paste your notes before submitting.');
@@ -49,7 +82,7 @@ document.addEventListener("DOMContentLoaded", function() {
         pastedNotes.value = '';
         submitNotesButton.disabled = true;
         printMessage(result.response)
-    }
+    };
 
     fileInput.addEventListener("change", function() {
         if (fileInput.files.length > 0) {
@@ -57,18 +90,18 @@ document.addEventListener("DOMContentLoaded", function() {
         } else {
             uploadButton.disabled = true;
         }
-    })
+    });
 
     async function uploadFile() {
         uploadButton.disabled = true;
         chatLog.innerHTML = ''
-        const file = fileInput.files[0];
+        let file = fileInput.files[0];
 
         const fileExtension = file.name.split('.').pop();
-        const extensions = ['txt', 'md', 'docx']
+        const extensions = ['txt', 'md', 'docx', 'pdf']
 
         if (!extensions.includes(fileExtension)) {
-            printMessage('Invalid file type. Please select a .txt, .md, or .docx file.');
+            printMessage('Invalid file type. Please select a .txt, .md, .docx, or .pdf file.');
             return;
         }
 
@@ -79,18 +112,27 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
+        if (fileExtension === 'pdf') {
+            const text = await extractText(file);
+            file = new Blob([text], { type: 'text/plain' });
+        } 
+        
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/upload', {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin'
+            });
 
-        const result = await response.json();
-        printMessage(result.response)
-    }
+            const result = await response.json();
+            printMessage(result.response)
+        }   catch (error) {
+            printMessage('Failed to upload file: ' + error.message);
+        }
+    };
 
     async function printMessage(message) {
         window.scrollTo(0, document.body.scrollHeight);

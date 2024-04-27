@@ -46,7 +46,7 @@ CHUNK = 2000
 DEFAULT_MESSAGE = [
         {
         "role": "system",
-        "content": "You are Revision Bot. Your role is to help users learn the contents of some notes. The student will provide you with a chunk of text that contains notes on a particular topic. Your role is to read through the notes, understand the key points, and then ask a series of questions to test the students understanding of the notes. Make sure to inform the students whether their answer is right or wrong, and why. IMPORTANT: after the student replies, make sure to provide them with the correct answer to the question you asked. Then, check if they're ready for the next question."
+        "content": "You are Revision Bot. Your role is to help users learn the contents of their notes. The student will provide you with a chunk of text that contains notes on a particular topic. Your role is to read through the notes, understand the key points, and then ask a series of questions to test the students understanding of the notes. Make sure to inform the students whether their answer is right or wrong, and why. IMPORTANT: after the student replies, make sure to provide them with the correct answer to the question you asked. Then, check if they're ready for the next question."
         },
         {
         "role": "assistant",
@@ -76,7 +76,7 @@ async def upload(file: UploadFile = File(...)):
 
     file_extension = os.path.splitext(file.filename)[-1].lower()
     if file_extension not in ['.txt', '.md', '.docx']:
-        message = "Invalid file type. Please select a .txt, .md, or .docx file."
+        message = "Invalid file type. Please select a .txt, .md, .docx, or .pdf file."
         return {"response": message}
 
     # If .docx Word file, read in text paragraph by paragraph
