@@ -130,6 +130,7 @@ async def chunkify_text(text_file: str, session_id: str):
     '''
     Break text into chunks and handle them one at a time to prevent overloading ChatGPTs token capacity.
     '''
+    print('Chunkifying text')
     session_data = json.loads(r.get(session_id))
     if not session_data: return {'response': 'Invalid session ID.'}
     
@@ -161,6 +162,7 @@ async def start_next_chunk(session_id: str):
     '''
     Reset ChatGPTs message history and then load the next chunk of text into it. 
     '''
+    print('Starting next chunk')
     session_data = json.loads(r.get(session_id))
     if not session_data: return {'response': 'Invalid session ID.'}
 
@@ -182,6 +184,7 @@ async def start_next_chunk(session_id: str):
 
     try:
         # Send initial message to ChatGPT with current chunk of users notes
+        print('Sending message of next chunk to ChatGPT')
         response = client.chat.completions.create(model="gpt-3.5-turbo-0125",
         messages=session_data['messages'],
         temperature=0.5,
@@ -189,9 +192,18 @@ async def start_next_chunk(session_id: str):
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0)
-            
-    except openai.InvalidRequestError:
-        message = 'Sorry, I was unable to process this chunk.<'
+
+    except openai.APIConnectionError as e:
+        print(e.__cause__)  
+        return "Sorry, the server could not be reached"
+    except openai.RateLimitError as e:
+        print("A 429 status code was received; we should back off a bit.")
+        return "Sorry, rate limit was exceeded"
+    except openai.APIStatusError as e:
+        message = "Sorry, an error occured."
+        print("A non-200-range status code was received")
+        print(e.status_code)
+        print(e.response)
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
              message += '<You have no more chunks left. This revision session is over.'
@@ -230,7 +242,7 @@ async def get_next_response(user_response: str, session_id: str):
         frequency_penalty=0,
         presence_penalty=0)
 
-    except openai.InvalidRequestError:
+    except openai.BadRequestError:
         message = 'Maximum length hit, RevAIse Bot cannot process anymore data in this chunk.<'
 
         if session_data['current_chunk'] >= (len(session_data['chunks']) - 1):
