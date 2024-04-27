@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
 
     function extractText(pdfUrl) {
+        console.log('Extracting text from ' + pdfUrl)
         var pdf = pdfjsLib.getDocument(pdfUrl);
         return pdf.promise.then(function (pdf) {
             var totalPageCount = pdf.numPages;
@@ -96,6 +97,7 @@ document.addEventListener("DOMContentLoaded", function() {
         uploadButton.disabled = true;
         chatLog.innerHTML = ''
         let file = fileInput.files[0];
+        console.log('File: ' + file)
 
         const fileExtension = file.name.split('.').pop();
         const extensions = ['txt', 'md', 'docx', 'pdf']
