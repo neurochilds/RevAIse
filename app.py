@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, UploadFile, File, Response
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+import math
 import openai
 from openai import OpenAI
 from schemas import UserResponse
@@ -141,6 +142,23 @@ async def chunkify_text(text_file: str, session_id: str):
     print(f'There are {len(lines)} lines of text in total')
     new_chunk = ''
 
+    if len(lines) == 1:
+        ''' 
+        This code breaks up files that have no '\n' newlines.
+        It splits a continuous string into chunks of length CHUNK characters.
+        '''
+        text = lines[0]
+        last_idx = 0
+        curr_idx = CHUNK
+        new_lines = []
+
+        while curr_idx < len(text):
+            new_lines.append(text[last_idx:curr_idx])
+            last_idx = curr_idx
+            curr_idx += CHUNK
+        new_lines.append(text[last_idx:])
+        lines = new_lines
+            
     for line in lines:
         print(f'Adding line of length {len(line)} to chunk')
         new_chunk += line
