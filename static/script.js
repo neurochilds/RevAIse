@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
+    
     const nextButton = document.getElementById('next-chunk');
     const submitResponseButton = document.getElementById('submit-response');
     const submitNotesButton = document.getElementById('submit-notes');
@@ -25,8 +27,6 @@ document.addEventListener("DOMContentLoaded", function() {
             submitNotesButton.disabled = true;
         }
     });
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
 
     function extractText(pdfUrl) {
         console.log('Extracting text from ' + pdfUrl)
