@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     function extractText(pdfUrl) {
-        console.log('Extracting text from ' + pdfUrl)
+        console.log('Extracting text from PDF')
         var pdf = pdfjsLib.getDocument(pdfUrl);
         return pdf.promise.then(function (pdf) {
             var totalPageCount = pdf.numPages;
@@ -55,6 +55,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             return Promise.all(countPromises).then(function (texts) {
+                console.log('Finished extracting text from PDF')
                 return texts.join('');
             });
         });
@@ -97,10 +98,11 @@ document.addEventListener("DOMContentLoaded", function() {
         uploadButton.disabled = true;
         chatLog.innerHTML = ''
         let file = fileInput.files[0];
-        console.log('File: ' + file)
 
         const fileExtension = file.name.split('.').pop();
         const extensions = ['txt', 'md', 'docx', 'pdf']
+
+        console.log('File: ' + fileExtension);
 
         if (!extensions.includes(fileExtension)) {
             printMessage('Invalid file type. Please select a .txt, .md, .docx, or .pdf file.');
@@ -123,6 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formData.append('file', file);
 
         try {
+            console.log('Sending data to server.')
             const response = await fetch('/upload', {
                 method: 'POST',
                 body: formData,
@@ -130,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
             });
 
             const result = await response.json();
+            console.log('Printing message from server.')
             printMessage(result.response)
         }   catch (error) {
             printMessage('Failed to upload file: ' + error.message);
