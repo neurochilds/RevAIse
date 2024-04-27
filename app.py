@@ -138,9 +138,11 @@ async def chunkify_text(text_file: str, session_id: str):
     session_data['current_chunk'] = 0
     
     lines = text_file.split('\n')
+    print(f'There are {len(lines)} lines of text in total')
     new_chunk = ''
 
     for line in lines:
+        print(f'Adding line of length {'len(line)'} to chunk')
         new_chunk += line
         if len(new_chunk) > CHUNK:
             session_data['chunks'].append(new_chunk)
