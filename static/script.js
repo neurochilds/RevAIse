@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function() {
     pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.mjs';
-    
+
     const nextButton = document.getElementById('next-chunk');
     const submitResponseButton = document.getElementById('submit-response');
     const submitNotesButton = document.getElementById('submit-notes');
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
 
         if (fileExtension === 'pdf') {
-            const text = await extractText(file);
+            const text = await extractText(URL.createObjectURL(file));
             file = new Blob([text], { type: 'text/plain' });
         } 
         
