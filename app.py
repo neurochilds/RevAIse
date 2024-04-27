@@ -41,7 +41,7 @@ r = redis.Redis(connection_pool=pool)
 # The text will be broken up into chunks of 2000 characters.
 # ChatGPT will be sent one chunk at a time to provide questions on.
 # Revision Bot will reset ChatGPTs message history and send the next chunk whenever the user selects to move on to the next chunk, or when ChatGPT reaches maximum token capacity for the current chunk.
-CHUNK = 4000
+CHUNK = 5000
 
 # This is the default message to 'train' ChatGPT on each chunk of text
 DEFAULT_MESSAGE = [
