@@ -74,11 +74,6 @@ async def upload(file: UploadFile = File(...)):
     # Read the file content as bytes
     contents = await file.read()
 
-    file_extension = os.path.splitext(file.filename)[-1].lower()
-    if file_extension not in ['.txt', '.md', '.docx']:
-        message = "Invalid file type. Please select a .txt, .md, .docx, or .pdf file."
-        return {"response": message}
-
     # If .docx Word file, read in text paragraph by paragraph
     if file.content_type == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         doc = Document(io.BytesIO(contents))
